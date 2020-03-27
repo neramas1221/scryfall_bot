@@ -8,7 +8,7 @@ import json
 import pandas as pd
 import os.path
 
-def get_image(card):
+def get_card(card):
     card = card.replace(" ","_")
     url = 'https://api.scryfall.com/cards/named?exact=' + card
     r = requests.get(url = url)
@@ -24,7 +24,7 @@ with open('PioneerCards.json') as json_file:
 keys = data.keys()
 p = []
 for card in tqdm(keys):
-    p.append(get_image(card))
+    p.append(get_card(card))
 
 print("\n")
 print("\n")
