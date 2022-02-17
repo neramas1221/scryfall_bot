@@ -7,6 +7,9 @@ from tqdm import tqdm
 import json
 import pandas as pd
 import os.path
+import dask
+from dask.diagnostics import ProgressBar
+ProgressBar().register()
 
 def get_card(card):
     card = card.replace(" ","_")
@@ -18,13 +21,20 @@ def get_card(card):
 start = time()
 data = []
 
-with open('PioneerCards.json') as json_file:
+with open('PioneerCards.json', encoding='utf-8') as json_file:
     data = json.load(json_file)
   
 keys = data.keys()
 p = []
+
+lazy_results = []
+
 for card in tqdm(keys):
-    p.append(get_card(card))
+    task = dask.delayed(get_card)(card)
+    lazy_results.append(task)
+    # p.append(get_card(card))
+
+results = dask.compute(*lazy_results)
 
 print("\n")
 print("\n")
@@ -32,7 +42,7 @@ time() - start
 
 info = ["name", "cmc", "legalities", "reprint", "set", "set_type", "rarity", "prices"]
 card_info = []
-for cards in tqdm(p):
+for cards in tqdm(results):
   temp = []
   for k in info:
     if k == "legalities":
